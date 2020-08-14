@@ -19,7 +19,7 @@
 #include <fftw3.h>
 #include "sdradar.h"
 #include "graph.h"
-
+#include "NE10.h"
 
 
 // Constant defines

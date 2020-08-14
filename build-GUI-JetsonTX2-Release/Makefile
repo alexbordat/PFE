@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I../GUI -I. -isystem /usr/include/aarch64-linux-gnu/qt5 -isystem /usr/include/aarch64-linux-gnu/qt5/QtPrintSupport -isystem /usr/include/aarch64-linux-gnu/qt5/QtWidgets -isystem /usr/include/aarch64-linux-gnu/qt5/QtGui -isystem /usr/include/aarch64-linux-gnu/qt5/QtCore -I. -I. -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I../GUI -I. -I../Ne10-master/inc -isystem /usr/include/aarch64-linux-gnu/qt5 -isystem /usr/include/aarch64-linux-gnu/qt5/QtPrintSupport -isystem /usr/include/aarch64-linux-gnu/qt5/QtWidgets -isystem /usr/include/aarch64-linux-gnu/qt5/QtGui -isystem /usr/include/aarch64-linux-gnu/qt5/QtCore -I. -I. -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -38,7 +38,7 @@ DISTNAME      = GUI1.0.0
 DISTDIR = /home/jetson/PFE/build-GUI-JetsonTX2-Release/.tmp/GUI1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -L/usr/local/lib -lusb-1.0 -lfftw3 -lQt5PrintSupport -lQt5Widgets -lQt5Gui -lQt5Core -lGLESv2 -lpthread 
+LIBS          = $(SUBLIBS) -L/usr/local/lib -lusb-1.0 -lfftw3 -L/home/jetson/PFE/GUI/../Ne10-master/build/modules/ -lNE10 -lQt5PrintSupport -lQt5Widgets -lQt5Gui -lQt5Core -lGLESv2 -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -366,20 +366,28 @@ compiler_moc_header_clean:
 moc_MaFenetre.cpp: ../GUI/sdradar.h \
 		../GUI/libusb.h \
 		../GUI/graph.h \
+		../Ne10-master/inc/NE10.h \
+		../Ne10-master/inc/NE10_types.h \
+		../Ne10-master/inc/NE10_macros.h \
+		../Ne10-master/inc/NE10_init.h \
+		../Ne10-master/inc/NE10_math.h \
+		../Ne10-master/inc/NE10_dsp.h \
+		../Ne10-master/inc/NE10_imgproc.h \
+		../Ne10-master/inc/NE10_physics.h \
 		../GUI/MaFenetre.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/jetson/PFE/GUI -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtPrintSupport -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/aarch64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/aarch64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/aarch64-linux-gnu/7/include-fixed -I/usr/include/aarch64-linux-gnu -I/usr/include ../GUI/MaFenetre.h -o moc_MaFenetre.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/jetson/PFE/GUI -I/home/jetson/PFE/Ne10-master/inc -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtPrintSupport -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/aarch64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/aarch64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/aarch64-linux-gnu/7/include-fixed -I/usr/include/aarch64-linux-gnu -I/usr/include ../GUI/MaFenetre.h -o moc_MaFenetre.cpp
 
 moc_qcustomplot.cpp: ../GUI/qcustomplot.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/jetson/PFE/GUI -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtPrintSupport -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/aarch64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/aarch64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/aarch64-linux-gnu/7/include-fixed -I/usr/include/aarch64-linux-gnu -I/usr/include ../GUI/qcustomplot.h -o moc_qcustomplot.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/jetson/PFE/GUI -I/home/jetson/PFE/Ne10-master/inc -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtPrintSupport -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/aarch64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/aarch64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/aarch64-linux-gnu/7/include-fixed -I/usr/include/aarch64-linux-gnu -I/usr/include ../GUI/qcustomplot.h -o moc_qcustomplot.cpp
 
 moc_graph.cpp: ../GUI/graph.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/jetson/PFE/GUI -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtPrintSupport -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/aarch64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/aarch64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/aarch64-linux-gnu/7/include-fixed -I/usr/include/aarch64-linux-gnu -I/usr/include ../GUI/graph.h -o moc_graph.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/jetson/PFE/GUI -I/home/jetson/PFE/Ne10-master/inc -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtPrintSupport -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/aarch64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/aarch64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/aarch64-linux-gnu/7/include-fixed -I/usr/include/aarch64-linux-gnu -I/usr/include ../GUI/graph.h -o moc_graph.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -404,13 +412,29 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 MaFenetre.o: ../GUI/MaFenetre.cpp ../GUI/MaFenetre.h \
 		../GUI/sdradar.h \
 		../GUI/libusb.h \
-		../GUI/graph.h
+		../GUI/graph.h \
+		../Ne10-master/inc/NE10.h \
+		../Ne10-master/inc/NE10_types.h \
+		../Ne10-master/inc/NE10_macros.h \
+		../Ne10-master/inc/NE10_init.h \
+		../Ne10-master/inc/NE10_math.h \
+		../Ne10-master/inc/NE10_dsp.h \
+		../Ne10-master/inc/NE10_imgproc.h \
+		../Ne10-master/inc/NE10_physics.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o MaFenetre.o ../GUI/MaFenetre.cpp
 
 main.o: ../GUI/main.cpp ../GUI/MaFenetre.h \
 		../GUI/sdradar.h \
 		../GUI/libusb.h \
-		../GUI/graph.h
+		../GUI/graph.h \
+		../Ne10-master/inc/NE10.h \
+		../Ne10-master/inc/NE10_types.h \
+		../Ne10-master/inc/NE10_macros.h \
+		../Ne10-master/inc/NE10_init.h \
+		../Ne10-master/inc/NE10_math.h \
+		../Ne10-master/inc/NE10_dsp.h \
+		../Ne10-master/inc/NE10_imgproc.h \
+		../Ne10-master/inc/NE10_physics.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../GUI/main.cpp
 
 sdradar.o: ../GUI/sdradar.cpp ../GUI/sdradar.h \

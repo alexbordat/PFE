@@ -20,7 +20,10 @@ SUBDIRS += \
 
 LIBS += -L/usr/local/lib -lusb-1.0
 LIBS += -lfftw3
+LIBS += -L$$PWD/../Ne10-master/build/modules/ -lNE10
 
 FORMS += \
     graph.ui
 
+
+INCLUDEPATH += $$PWD/../Ne10-master/inc
