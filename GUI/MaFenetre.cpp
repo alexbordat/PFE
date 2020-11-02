@@ -99,7 +99,7 @@ MaFenetre::MaFenetre() : QWidget()
 MaFenetre::~MaFenetre()
 {
     delete sdr;
-    delete fenetreRecap;
+//    delete fenetreRecap;
 }
 
 void MaFenetre::initializeRadar()
@@ -418,6 +418,7 @@ void MaFenetre::processData()
     QByteArray nomFichier = fichier.toLocal8Bit();
     const char *addr_nomFichier = nomFichier.data();
 
+
     //Open the file
     //        FILE *file = std::fopen (addr_nomFichier, "rb");//addr_nomFichier ou "./sdr_kit_980AD2_data.bin"
 
@@ -437,12 +438,10 @@ void MaFenetre::processData()
     if(file.read((char *)buffer.data(),size))//On doit forcément caster le pointeur car la méthode read ne prend qu'un pointeur de char
     {
         std::cout << "Succefully copied" << std::endl;
-        //            for(int i=0; i<6;i++)
-        //            {
-        //                std::cout << buffer[i] << std::endl;
-        //            }
-        //            std::cout << buffer.size() << std::endl;
-        //            std::cout << buffer[buffer.size()-1] << std::endl;
+
+        std::cout << "Start" << std::endl;
+
+
         //Modulation scheme
         int MD = buffer[0];
 
@@ -482,7 +481,11 @@ void MaFenetre::processData()
         fenetreExtract->setLayout(layoutExtract);
         fenetreExtract->setWindowTitle("Recap extracted Data");
         fenetreExtract->show();
+
         file.close();
+
+        auto start = std::chrono::high_resolution_clock::now();
+
         double Np =0;
         switch (CH) {
         case 2:
@@ -541,22 +544,6 @@ void MaFenetre::processData()
                 index_q2+=4;
             }
 
-            //                std::cout << I1[0] << std::endl;
-            //                std::cout << I1[I1.size()-1] << std::endl;
-            //                std::cout << I1.size() << std::endl;
-
-            //                std::cout << Q1[0] << std::endl;
-            //                std::cout << Q1[Q1.size()-1] << std::endl;
-            //                std::cout << Q1.size() << std::endl;
-
-            //                std::cout << I2[0] << std::endl;
-            //                std::cout << I2[I2.size()-1] << std::endl;
-            //                std::cout << I2.size() << std::endl;
-
-            //                std::cout << Q2[0] << std::endl;
-            //                std::cout << Q2[Q2.size()-1] << std::endl;
-            //                std::cout << Q2.size() << std::endl;
-
             std::vector<int> header_index;
 
             for(int i=0; i<I1.size(); i++)
@@ -566,9 +553,6 @@ void MaFenetre::processData()
                     header_index.push_back(i);
                 }
             }
-            //                std::cout << header_index[0] << std::endl;
-            //                std::cout << header_index[header_index.size()-1] << std::endl;
-            //                std::cout << header_index.size() << std::endl;
 
             // à faire la structure conditionnel (if) pour savoir si il y a eu des data loss
 
@@ -613,39 +597,24 @@ void MaFenetre::processData()
                 Q2_d.push_back(Q2[i]-mean_Q2);
             }
 
-//            std::cout << I1_d[0] << std::endl;
-//            std::cout << I1_d[I1_d.size()-1] << std::endl;
-//            std::cout << I1_d.size() << std::endl;
 
-//            std::cout << Q1_d[0] << std::endl;
-//            std::cout << Q1_d[Q1_d.size()-1] << std::endl;
-//            std::cout << Q1_d.size() << std::endl;
-
-//            std::cout << I2_d[0] << std::endl;
-//            std::cout << I2_d[I2_d.size()-1] << std::endl;
-//            std::cout << I2_d.size() << std::endl;
-
-//            std::cout << Q2_d[0] << std::endl;
-//            std::cout << Q2_d[Q2_d.size()-1] << std::endl;
-//            std::cout << Q2_d.size() << std::endl;
-
-            QVector<double> time;
-            time = linspace(0.0,T,(double)I1.size());
+//            QVector<double> time;
+//            time = linspace(0.0,T,(double)I1.size());
             QVector<double> I1_Q = QVector<double>::fromStdVector(I1_d);
             QVector<double> Q1_Q = QVector<double>::fromStdVector(Q1_d);
 
-            graph_1 = new graph;
-            graph_1->setWindowTitle("Graphique I1 & Q1");
-            graph_1->makePlot_I_Q(I1_Q,Q1_Q,time);
-            graph_1->show();
+//            graph_1 = new graph;
+//            graph_1->setWindowTitle("Graphique I1 & Q1");
+//            graph_1->makePlot_I_Q(I1_Q,Q1_Q,time);
+//            graph_1->show();
 
             QVector<double> I2_Q = QVector<double>::fromStdVector(I2_d);
             QVector<double> Q2_Q = QVector<double>::fromStdVector(Q2_d);
 
-            graph_2 = new graph;
-            graph_2->setWindowTitle("Graphique I2 & Q2");
-            graph_2->makePlot_I_Q(I2_Q,Q2_Q,time);
-            graph_2->show();
+//            graph_2 = new graph;
+//            graph_2->setWindowTitle("Graphique I2 & Q2");
+//            graph_2->makePlot_I_Q(I2_Q,Q2_Q,time);
+//            graph_2->show();
 
             //Transformation Data pour traitement FFT
 
@@ -657,8 +626,11 @@ void MaFenetre::processData()
             double record_length = (double)N/NTS_extract*Tsweep;
             int nc = floor(record_length/Tsweep);
 
-            //Input array
+            //éxécute le code pour les 2 channels
+            for(int channel =1;channel<3;channel++)
+            {
 
+                //Input array
             fftw_complex *Data1,*Data2,*Data,*out;
             fftw_plan plan;
 
@@ -683,15 +655,32 @@ void MaFenetre::processData()
             std::vector<double> real_out (NTS_extract);
             std::vector<double> imag_out(NTS_extract);
 
+            // déclaration qui permet de stocké les fft shifté dans un tableau de bonne dimension
             std::vector<std::vector<double>> real_fft_shifted (nc,std::vector<double>(NTS_extract));
+            std::vector<std::vector<double>> imag_fft_shifted (nc,std::vector<double>(NTS_extract));
+            int column_index = 0;
 
 
-            for(int i=0; i<nc*NTS_extract; i+=128 )
+            std::cout << "Test1" << std::endl;
+
+
+
+            for(int i=0; i<nc*NTS_extract; i+=NTS_extract )
             {
-                for(int j=0;j<NTS_extract;j++)
+                if(channel == 1)
                 {
-                    Data[j][REAL]=Data2[i+j][REAL];
-                    Data[j][IMAG]=Data2[i+j][IMAG];
+                    for(int j=0;j<NTS_extract;j++)
+                    {
+                        Data[j][REAL]=Data1[i+j][REAL];
+                        Data[j][IMAG]=Data1[i+j][IMAG];
+                    }
+                }else
+                {
+                    for(int j=0;j<NTS_extract;j++)
+                    {
+                        Data[j][REAL]=Data2[i+j][REAL];
+                        Data[j][IMAG]=Data2[i+j][IMAG];
+                    }
                 }
 
                 fftw_execute(plan);
@@ -705,23 +694,241 @@ void MaFenetre::processData()
                 fftwShift(real_out);
                 fftwShift(imag_out);
 
+                for(int k=0; k<NTS_extract;k++)
+                {
+                    real_fft_shifted[column_index][k]=real_out[k];
+                    imag_fft_shifted[column_index][k]=imag_out[k];
+                }
+
+               column_index +=1;
 
             }
 
-            for(int i =0; i<NTS_extract;i++)
+            //déclaration qui permet de récupérer que la partie intéressante de la fft shiftée (on récupère la moitié)
+
+            std::vector<std::vector<double>> real_data_range (nc,std::vector<double>(((real_fft_shifted[0].size())/2)));
+            std::vector<std::vector<double>> imag_data_range (nc,std::vector<double>(((real_fft_shifted[0].size())/2)));
+
+            //permet de récupérer que la partie intéressante de la fft shiftée (on récupère la moitié)
+            for(int i =0; i<(real_fft_shifted[0].size())/2;i++)
             {
-                std::cout << real_out[i] << " + i "<< imag_out[i] <<std::endl;
+                for(int k = 0; k<nc ;k++)
+                {
+                    real_data_range[k][i] = real_fft_shifted[k][((real_fft_shifted[0].size())/2)+i];
+                    imag_data_range[k][i] = imag_fft_shifted[k][((real_fft_shifted[0].size())/2)+i];
+                }
+
             }
 
+            std::cout << "Test2" << std::endl;
+
+
+            //permet de libérer l'esapce utiliser pour la première fft
             fftw_destroy_plan(plan);
             fftw_free(Data1);
             fftw_free(Data2);
             fftw_free(Data);
             fftw_free(out);
 
+
+            // les tableaux à passer à la fonction de filtrage créé plus bas
+            std::complex<double> input_filter_data[nc];
+            std::complex<double> output_filter_data[nc];
+
+            // permet de stocker tout le filtrage
+            std::vector<std::vector<double>> real_fft_filtered_shifted (nc,std::vector<double>(real_data_range[0].size()));
+            std::vector<std::vector<double>> imag_fft_filtered_shifted (nc,std::vector<double>(real_data_range[0].size()));
+
+
+            //la boucle de filtrage
+            for(int i =0; i<real_data_range[0].size();i++)
+            {
+                for(int k = 0; k<nc ;k++)
+                {
+                    input_filter_data[k]=std::complex<double>(real_data_range[k][i],imag_data_range[k][i]);
+//                    input_filter_data[k]=std::complex<double>(1,0);
+
+                }
+
+                butter_filter(input_filter_data,output_filter_data,nc);// nc+2*166 // a finir le dernière argument à recalculer avec le groupe delay dans matlab + voir commentaire fontion filter
+
+                for(int k = 0; k<nc ;k++)
+                {
+                real_fft_filtered_shifted[k][i] =real(output_filter_data[k]);
+                imag_fft_filtered_shifted[k][i] =imag(output_filter_data[k]);
+                }
+
+                for(int k = 0; k<nc ;k++)
+                {
+                    output_filter_data[k]=std::complex<double>(0,0);
+                }
+
+            }
+
+            // déclaration des tableaux permettant de récupéré les filtrages sans la première case de chaque colonne
+            std::vector<std::vector<double>> real_data_range_MTI (nc-1,std::vector<double>(real_data_range[0].size()-1));
+            std::vector<std::vector<double>> imag_data_range_MTI (nc-1,std::vector<double>(real_data_range[0].size()-1));
+
+            std::vector<std::vector<double>> real_data_range2 (nc,std::vector<double>(real_data_range[0].size()-1));
+            std::vector<std::vector<double>> imag_data_range2 (nc,std::vector<double>(real_data_range[0].size()-1));
+
+            //Permet d'éliminer la première case car elle a un fort résidus du filtrage
+            for(int i =0; i<(real_data_range[0].size())-1;i++)
+            {
+                for(int k = 0; k<nc-1 ;k++)
+                {
+                    real_data_range_MTI[k][i] = real_fft_filtered_shifted[k][i+1];
+                    imag_data_range_MTI[k][i] = imag_fft_filtered_shifted[k][i+1];
+
+                    real_data_range2 [k][i] = real_data_range[k][i+1];
+                    imag_data_range2 [k][i] = imag_data_range[k][i+1];
+                }
+
+            }
+//          // a partir d'ici on va faire la 2ème fft pour obtenir les doppler signature
+
+            int bin_indl = 10;
+            int bin_indu = 60;
+
+            double PRF = 1/Tsweep;
+            int TimeWindowLength = 256;
+            double OverlapFactor = 0.95;
+            int OverlapLength = round(TimeWindowLength*OverlapFactor);
+            int hopSize = TimeWindowLength-OverlapLength;
+            int Pad_Factor=4;
+            int FFTPoints = Pad_Factor*TimeWindowLength;
+            double DopplerBin = PRF / FFTPoints;
+            double Numsegment = floor((real_data_range_MTI.size()-TimeWindowLength)/floor(TimeWindowLength*(1-OverlapFactor)));
+            std::cout << "Num seg : "<< Numsegment << std::endl;
+
+
+            //déclaration des matrices nécessaire au traitement de la stft
+            std::complex<double> signal[real_data_range_MTI.size()];
+            std::complex<double> signal_2[real_data_range_MTI.size()];
+
+            std::vector<std::vector<std::complex<double>>> output_stft2 (Numsegment,std::vector<std::complex<double>>(FFTPoints));
+            std::vector<std::vector<std::complex<double>>> output_stft3 (Numsegment,std::vector<std::complex<double>>(FFTPoints));
+            std::vector<std::vector<std::complex<double>>> output_stft_shifted (Numsegment,std::vector<std::complex<double>>(FFTPoints));
+            std::vector<std::vector<std::complex<double>>> output_stft_shifted2 (Numsegment,std::vector<std::complex<double>>(FFTPoints));
+            std::vector<std::vector<double>> Data_spec_MTI2 (Numsegment,std::vector<double>(FFTPoints));
+            std::vector<std::vector<std::complex<double>>> Data_spec_2 (Numsegment,std::vector<std::complex<double>>(FFTPoints));
+            std::vector<std::complex<double>> temp_non_shifted (FFTPoints);
+            std::vector<std::complex<double>> temp_non_shifted2 (FFTPoints);
+
+
+            //on fait le traitement pour les lignes 9 à 59
+
+            auto start_1 = std::chrono::high_resolution_clock::now();
+
+            fftw_complex *Data_stft, *out_stft;
+            Data_stft = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*FFTPoints);
+            out_stft = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*FFTPoints);
+
+            fftw_plan plan1;
+
+            plan1 = fftw_plan_dft_1d(FFTPoints,Data_stft,out_stft, FFTW_FORWARD,FFTW_ESTIMATE);
+
+
+            fftw_complex *Data_stft2, *out_stft2;
+            Data_stft2 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*FFTPoints);
+            out_stft2 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*FFTPoints);
+
+            fftw_plan plan2;
+
+            plan2 = fftw_plan_dft_1d(FFTPoints,Data_stft2,out_stft2, FFTW_FORWARD,FFTW_ESTIMATE);
+
+            for(int i = 9; i<60;i++){
+
+                //copie dans le buffer signal des données pour la stft
+                for(int k = 0; k<real_data_range_MTI.size() ;k++)
+                        {
+                            signal[k]=std::complex<double>(real_data_range_MTI[k][i],imag_data_range_MTI[k][i]);
+                            signal_2[k]=std::complex<double>(real_data_range2[k][i],imag_data_range2[k][i]);
+
+                        }
+
+                //appel de la fonction stft
+                STFT(signal,real_data_range_MTI.size(),TimeWindowLength,hopSize,FFTPoints,output_stft2,Data_stft,out_stft,&plan1);
+                STFT(signal_2,real_data_range_MTI.size(),TimeWindowLength,hopSize,FFTPoints,output_stft3,Data_stft2,out_stft2,&plan2);
+
+                //Boucle for pour shifter les colonne de chaque matrice
+                for(int u=0; u<output_stft2.size();u++ ){
+                    //copie des data dans un buffer pour shifter les data
+                    for(int j = 0; j<output_stft2[0].size();j++ ){
+
+                        temp_non_shifted[j]=output_stft2[u][j];
+                        temp_non_shifted2[j]=output_stft3[u][j];
+
+                    }
+
+                    // appel de la fonction de shift
+                    fftwShiftComplex(temp_non_shifted);
+                    fftwShiftComplex(temp_non_shifted2);
+
+                    for(int j = 0; j<output_stft2[0].size();j++ ){
+                        //Copie dans la matrice shifté
+                        output_stft_shifted[u][j]=temp_non_shifted[j];
+                        output_stft_shifted2[u][j]=temp_non_shifted2[j];
+                    }
+                }
+
+                for(int u=0; u<output_stft2.size();u++ ){
+
+                    for(int j = 0; j<output_stft2[0].size();j++ ){
+                        //calcul de la valeur absolue de toute les matrices
+                        Data_spec_MTI2[u][j]=Data_spec_MTI2[u][j]+abs(output_stft_shifted[u][j]);
+                        Data_spec_2[u][j]=Data_spec_2[u][j]+abs(output_stft_shifted2[u][j]);
+                    }
+                }
+
+            }
+
+            fftw_destroy_plan(plan1);
+            fftw_free(Data_stft);
+            fftw_free(out_stft);
+
+            fftw_destroy_plan(plan2);
+            fftw_free(Data_stft2);
+            fftw_free(out_stft2);
+
+        }
+
+            auto stop = std::chrono::high_resolution_clock::now();
+
+//            auto stop_1 = std::chrono::high_resolution_clock::now();
+
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop-start);
+
+//            auto duration_1 = std::chrono::duration_cast<std::chrono::microseconds>(stop_1-start_1);
+
+
+            std::cout << duration.count() <<" Microseconds" << std::endl;
+//            std::cout << duration_1.count()<<" Microseconds" << std::endl;
             std::cout << "Stop" << std::endl;
-            std::cout << real_fft_shifted.size() << std::endl;
-            std::cout << real_fft_shifted[0].size() << std::endl;
+
+
+
+//            for(int j = 0; j<output_stft2[0].size();j++){
+//                std::cout <<std::setprecision(16)<<Data_spec_MTI2[0][j] << std::endl;
+
+//            }
+
+//            std::ofstream monFlux("data_out");
+//            if(monFlux)
+//            {
+//                for(int i =0; i<FFTPoints;i++)
+//                {
+//                    for(int j=0; j<(int)Numsegment;j++){
+
+//                        monFlux <<std::setprecision(16)<<Data_spec_MTI2[j][i] << ",";
+//                    }
+//                    monFlux<<std::endl;
+
+//                }
+
+//            }else{
+//                std::cout <<"Erreur : Impossible ouvrir le fichier." << std::endl;
+//            }
 
         }
             break;
@@ -738,6 +945,73 @@ void MaFenetre::processData()
     //    {
     //        QMessageBox::information(this, "Process Data", "You must first initialize the Radar and Update its parameter and Update the bandwith parameter and Request Data");
     //    }
+    QApplication::quit();
+}
+
+void MaFenetre::STFT(std::complex<double> *Signal,int signalLength, int windowSize,int hopSize, int FFTPoints,std::vector<std::vector<std::complex<double>>>& result,fftw_complex *Data_stft,fftw_complex *out_stft,fftw_plan *plan)
+{
+//    fftw_complex *Data_stft, *out_stft;
+//    Data_stft = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*FFTPoints);
+//    out_stft = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*FFTPoints);
+
+//    fftw_plan plan;
+
+//    plan = fftw_plan_dft_1d(FFTPoints,Data_stft,out_stft, FFTW_FORWARD,FFTW_ESTIMATE);
+
+    float window[windowSize];
+    for(int i=0;i<windowSize;i++)
+    {
+        window[i]=0.54-(0.46*cos(2*M_PI*(i/((windowSize-1)*1.0))));// hamming windows puisuqe dans Matlab la valeur par défaut
+        //de window est une hamming window
+    }
+
+
+
+    int chunkPosition = 0;
+    int readIndex;
+
+    int bStop =0;
+
+    int numChunks=0;
+
+    while((chunkPosition< signalLength)&& !bStop)
+    {
+        for(int i=0; i<FFTPoints;i++)
+        {
+            readIndex = chunkPosition+i;
+
+            if(readIndex<signalLength){
+
+                if(i<windowSize){
+                    Data_stft[i][REAL] = real(Signal[readIndex]) * window[i];
+                    Data_stft[i][IMAG] = imag(Signal[readIndex]) * window[i];
+                }else{
+                    Data_stft[i][REAL] = 0.0;
+                    Data_stft[i][IMAG] = 0.0;
+                }
+
+            }else{
+
+                Data_stft[i][REAL]=0.0;
+                Data_stft[i][IMAG]=0.0;
+
+                bStop=1;
+            }
+        }
+        fftw_execute(*plan);
+
+            for(int i=0;i <FFTPoints; i++)
+            {
+                result[numChunks][i]= std::complex<double>(out_stft[i][REAL],out_stft[i][IMAG]);
+            }
+
+
+        chunkPosition+=hopSize;
+        numChunks++;
+    }
+//    fftw_destroy_plan(plan);
+//    fftw_free(Data_stft);
+//    fftw_free(out_stft);
 }
 
 
@@ -766,7 +1040,112 @@ QVector<double> MaFenetre::linspace(double start, double end, double num)
     return linspaced;
 }
 
+void MaFenetre::butter_filter(std::complex<double> *Signal,std::complex<double> *FilteredSignal, int NumSigPts)
+{
+    #define REG_SIZE 100
+
+    double DenomCoeff[REG_SIZE], NumCoeff[REG_SIZE];
+
+////    Fill the coefficient arrays.
+
+    NumCoeff[4] = 0.969683064082197;
+    NumCoeff[3] = -3.878732256328786;
+    NumCoeff[2] = 5.818098384493180;
+    NumCoeff[1] = -3.878732256328786;
+    NumCoeff[0] = 0.969683064082197;
+
+    DenomCoeff[4] = 0.940285244767838;
+    DenomCoeff[3] = -3.819034001378258;
+    DenomCoeff[2] = 5.817179417349649;
+    DenomCoeff[1] = -3.938430361819399;
+    DenomCoeff[0] = 1.0;
+
+    int N_degree;
+
+    N_degree = 4; //This is the degree of the polynomial.
+
+
+//    This particular filter has a nominal group delay of 4 so
+//    we set NumSigPts to at least 1000 + 2*4 ? A calculer à mon avis
+
+//    double Signal[1100], FilteredSignal[1100];
+//    for(j=0; j<1000; j++)Signal[j] =  (double)random(2000)/1000.0 - 1.0; Inutile
+//    RunIIRPoly(Signal, FilteredSignal, 1008);
+
+
+
+//    In the code below, we simply set all the array sizes to 100 so that the
+//    code will work with any size filter. IIR filters can't have a degree of much more
+//    than 40. The alternative would be to use malloc for all the arrays.
+
+//    Both of the functions given here assume N and the 2 Coeff arrays are globals.
+//    N is the degree of the polynomial.
+
+//    This first function implements a Form 1 Nth Order Poly
+//    It uses 2 sets of shift registers, RegX on the input side and RegY on the output side.
+//    CenterTap is the point between the two branches.
+
+      int j, k;
+      std::complex<double> RegX[REG_SIZE], RegY[REG_SIZE], CenterTap;
+
+      for(j=0; j<REG_SIZE; j++)RegX[j] = RegY[j]= std::complex<double>(0.0,0.0);  // Init the delay registers.
+    /*
+      for(j=0; j<NumSigPts; j++)
+       {
+        // Shift the register values.
+        for(k=N; k>0; k--)RegX[k] = RegX[k-1];
+        for(k=N; k>0; k--)RegY[k] = RegY[k-1];
+
+        // The numerator
+        CenterTap = 0.0;
+        RegX[0] = Signal[j];
+        for(k=0; k<=N; k++)
+         {
+          CenterTap += NumCoeff[k] * RegX[k];
+         }
+
+        // The denominator
+        RegY[0] = CenterTap * DenomCoeff[0];
+        for(k=1; k<=N; k++)
+         {
+          RegY[0] -= DenomCoeff[k] * RegY[k];
+         }
+        FilteredSignal[j] = RegY[0];
+       }
+    */
+
+     // This is equivalent to the code above.
+     // This code applies to a flow chart that combines the center adders.
+     for(j=0; j<NumSigPts; j++)
+      {
+       // Shift the register values.
+       for(k=N_degree; k>0; k--)RegX[k] = RegX[k-1];
+       for(k=N_degree; k>0; k--)RegY[k] = RegY[k-1];
+
+       RegX[0] = Signal[j];
+       CenterTap = NumCoeff[0] * RegX[0];
+       for(k=1; k<=N_degree; k++)
+        {
+         CenterTap += NumCoeff[k] * RegX[k] - DenomCoeff[k] * RegY[k];
+        }
+       RegY[0] = CenterTap * DenomCoeff[0];  // DenomCoeff[0] should = 1
+       FilteredSignal[j] = RegY[0];
+      }
+}
+
 void MaFenetre::fftwShift(std::vector<double>&data_shift)
+{
+    int N_shift = data_shift.size();
+    //even number of element
+    if(N_shift%2==0)
+        std::rotate(&data_shift[0],&data_shift[N_shift >> 1], &data_shift[N_shift]);
+    //odd number
+    else
+        std::rotate(&data_shift[0],&data_shift[(N_shift >> 1)+1], &data_shift[N_shift]);
+
+}
+
+void MaFenetre::fftwShiftComplex(std::vector<std::complex<double>>&data_shift)
 {
     int N_shift = data_shift.size();
     //even number of element

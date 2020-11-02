@@ -19,7 +19,10 @@
 #include <fftw3.h>
 #include "sdradar.h"
 #include "graph.h"
-#include "NE10.h"
+#include <math.h>
+#include <fstream>
+#include <iomanip>
+#include <chrono>
 
 
 // Constant defines
@@ -47,7 +50,10 @@ class MaFenetre : public QWidget // On hérite de QWidget (IMPORTANT)
 
 private slots:
     QVector<double> linspace(double start, double end, double num);
+    void butter_filter(std::complex<double> *Signal,std::complex<double> *FilteredSignal, int NumSigPts);
     void fftwShift(std::vector<double>&data_shift);
+    void fftwShiftComplex(std::vector<std::complex<double>>&data_shift);
+    void STFT(std::complex<double> *Signal,int signalLength, int windowSize,int hopSize, int FFTPoints,std::vector<std::vector<std::complex<double>>>& result,fftw_complex *Data_stft,fftw_complex *out_stft,fftw_plan *plan);//, std::complex<double> *result
 
 private:
     QPushButton *m_bouton_initialize;

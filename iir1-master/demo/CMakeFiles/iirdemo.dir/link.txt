@@ -1,0 +1,1 @@
+/usr/bin/c++  -O2 -g -DNDEBUG  -rdynamic CMakeFiles/iirdemo.dir/iirdemo.cpp.o  -o iirdemo  ../libiir_static.a 
